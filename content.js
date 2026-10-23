@@ -57,19 +57,19 @@
       .auto-toggle.active { background: #f65e3b; }
       .hidden { display: none; }
     </style>
-    <section class="panel" aria-label="2048 次の一手" aria-live="polite">
+    <section class="panel" aria-label="2048 move advisor" aria-live="polite">
       <div class="header">
         <span class="title">2048 ADVISOR</span>
-        <button class="toggle" type="button">一時停止</button>
+        <button class="toggle" type="button">Pause</button>
       </div>
       <div class="recommendation">
         <div class="move hidden">
           <div class="arrow"></div>
         </div>
-        <div class="status">盤面を読み取っています…</div>
+        <div class="status">Reading board…</div>
       </div>
-      <div class="details">2048達成を優先</div>
-      <button class="auto-toggle" type="button">オート開始</button>
+      <div class="details">Prioritizing 2048</div>
+      <button class="auto-toggle" type="button">Auto Start</button>
     </section>
   `;
 
@@ -92,11 +92,11 @@
     dispatchMove,
     getBoardHash,
     onStateChange(state) {
-      autoToggle.textContent = state.active ? "オート停止" : "オート開始";
+      autoToggle.textContent = state.active ? "Auto Stop" : "Auto Start";
       autoToggle.classList.toggle("active", state.active);
       if (state.reason === "stalled") {
-        setStatus("オートを停止しました");
-        detailsElement.textContent = "盤面が動きませんでした";
+        setStatus("Auto mode stopped");
+        detailsElement.textContent = "The board did not change";
       }
     },
   });
@@ -112,14 +112,14 @@
     currentBoard = board;
     if (result && result.targetReached) {
       autoController.stop("targetReached");
-      setStatus("2048達成！");
-      detailsElement.textContent = "目標を達成しました";
+      setStatus("2048 reached!");
+      detailsElement.textContent = "Goal achieved";
       return;
     }
     if (!result || !result.move) {
       autoController.stop("gameOver");
-      setStatus("動かせる手がありません");
-      detailsElement.textContent = "ゲームオーバー";
+      setStatus("No moves left");
+      detailsElement.textContent = "Game over";
       return;
     }
     const maxTile = Math.max(...board.flat());
@@ -127,8 +127,8 @@
     arrowElement.textContent = arrows[result.move];
     statusElement.classList.add("hidden");
     moveElement.classList.remove("hidden");
-    const autoLabel = autoController.isActive() ? "オート実行中・" : "";
-    detailsElement.textContent = `${autoLabel}最大 ${maxTile}・空き ${emptyCount}・探索 ${result.depth}手先`;
+    const autoLabel = autoController.isActive() ? "Auto mode • " : "";
+    detailsElement.textContent = `${autoLabel}Max ${maxTile} • Empty ${emptyCount} • Depth ${result.depth}`;
     autoController.suggest(result.move, board.flat().join(","));
   }
 
@@ -209,7 +209,7 @@
         });
         showMove(result, board);
       } catch (_) {
-        setStatus("計算に失敗しました");
+        setStatus("Calculation failed");
       }
     }, 0);
   }
@@ -218,8 +218,8 @@
     requestId += 1;
     const id = requestId;
     const boardHash = board.flat().join(",");
-    setStatus("次の一手を計算中…");
-    detailsElement.textContent = "2048達成を優先";
+    setStatus("Calculating next move…");
+    detailsElement.textContent = "Prioritizing 2048";
     if (!worker && !workerFailed) worker = createWorker();
     if (worker) {
       worker.postMessage({ id, board, boardHash });
@@ -234,8 +234,8 @@
     if (!board) {
       autoController.stop("boardUnavailable");
       lastBoardHash = "";
-      setStatus("ゲーム開始を待っています");
-      detailsElement.textContent = "Standard / Classic 対応";
+      setStatus("Waiting for game…");
+      detailsElement.textContent = "Standard and Classic supported";
       return;
     }
     const hash = board.flat().join(",");
@@ -262,12 +262,12 @@
 
   toggle.addEventListener("click", () => {
     paused = !paused;
-    toggle.textContent = paused ? "再開" : "一時停止";
+    toggle.textContent = paused ? "Resume" : "Pause";
     if (paused) {
       autoController.stop("paused");
       requestId += 1;
-      setStatus("一時停止中");
-      detailsElement.textContent = "提案の更新を停止しています";
+      setStatus("Paused");
+      detailsElement.textContent = "Recommendation updates are paused";
     } else {
       lastBoardHash = "";
       scan();
@@ -282,7 +282,7 @@
     }
     if (paused) {
       paused = false;
-      toggle.textContent = "一時停止";
+      toggle.textContent = "Pause";
     }
     autoController.start();
     const currentHash = getBoardHash();

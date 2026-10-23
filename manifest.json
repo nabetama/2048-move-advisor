@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "2048 Move Advisor",
   "version": "0.2.0",
-  "description": "play2048.co の盤面を読み取り、2048達成を優先した次の一手を提案します。",
+  "description": "Reads the play2048.co board and recommends the next move, prioritizing the 2048 tile.",
   "content_scripts": [
     {
       "matches": [
