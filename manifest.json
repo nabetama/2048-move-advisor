@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "2048 Move Advisor",
+  "version": "0.2.0",
+  "description": "play2048.co の盤面を読み取り、2048達成を優先した次の一手を提案します。",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://play2048.co/*",
+        "https://www.play2048.co/*"
+      ],
+      "js": ["solver.js", "auto-mode.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["solver.js", "worker.js"],
+      "matches": [
+        "https://play2048.co/*",
+        "https://www.play2048.co/*"
+      ]
+    }
+  ]
+}
