@@ -1,6 +1,6 @@
 # 2048 Move Advisor
 
-[日本語](README.ja.md)
+[Japanese](README.ja.md)
 
 A Chrome extension for [play2048.co](https://play2048.co/) that reads the current board and recommends the next move, prioritizing reaching the 2048 tile. The recommendation is displayed as an arrow. Auto mode can also play each recommended move at a controlled interval.
 
@@ -20,7 +20,7 @@ The **2048 ADVISOR** panel will appear on the page. It recalculates the recommen
 
 ## Auto Mode
 
-Click **Auto Start** (`オート開始`) to let the extension play the recommended moves automatically. Click **Auto Stop** (`オート停止`) to return to manual play.
+Click **Auto Start** to let the extension play the recommended moves automatically. Click **Auto Stop** to return to manual play.
 
 Auto mode stops automatically when:
 
