@@ -1,9 +1,4 @@
-(function (root, factory) {
-  const api = factory();
-  if (typeof module === "object" && module.exports) module.exports = api;
-  root.Auto2048 = api;
-})(typeof globalThis !== "undefined" ? globalThis : this, function () {
-  "use strict";
+import type { AutoController, AutoControllerOptions, AutoState, Direction, TimerId } from "./types";
 
   const KEYBOARD_EVENTS = {
     up: { key: "ArrowUp", code: "ArrowUp" },
@@ -12,23 +7,23 @@
     left: { key: "ArrowLeft", code: "ArrowLeft" },
   };
 
-  function keyboardEventForMove(move) {
+export function keyboardEventForMove(move: Direction): { key: string; code: string } {
     const event = KEYBOARD_EVENTS[move];
     if (!event) throw new Error(`Unknown move: ${move}`);
     return { ...event };
   }
 
-  function createAutoController(options) {
+export function createAutoController(options: AutoControllerOptions): AutoController {
     const dispatchMove = options.dispatchMove;
     const getBoardHash = options.getBoardHash;
-    const onStateChange = options.onStateChange || function () {};
-    const setTimer = options.setTimer || setTimeout;
-    const clearTimer = options.clearTimer || clearTimeout;
-    const delayMs = options.delayMs || 650;
-    const watchdogMs = options.watchdogMs || 1200;
+    const onStateChange = options.onStateChange ?? (() => {});
+    const setTimer = options.setTimer ?? setTimeout;
+    const clearTimer = options.clearTimer ?? clearTimeout;
+    const delayMs = options.delayMs ?? 650;
+    const watchdogMs = options.watchdogMs ?? 1200;
     let active = false;
-    let actionTimer = null;
-    let watchdogTimer = null;
+    let actionTimer: TimerId | null = null;
+    let watchdogTimer: TimerId | null = null;
 
     function clearTimers() {
       if (actionTimer !== null) clearTimer(actionTimer);
@@ -43,7 +38,7 @@
       onStateChange({ active: true, reason: null });
     }
 
-    function stop(reason) {
+    function stop(reason?: Exclude<AutoState["reason"], null>) {
       const wasActive = active;
       active = false;
       clearTimers();
@@ -54,7 +49,7 @@
       clearTimers();
     }
 
-    function suggest(move, boardHash) {
+    function suggest(move: Direction, boardHash: string) {
       if (!active) return;
       clearTimers();
       actionTimer = setTimer(() => {
@@ -85,6 +80,3 @@
       suggest,
     };
   }
-
-  return { createAutoController, keyboardEventForMove };
-});

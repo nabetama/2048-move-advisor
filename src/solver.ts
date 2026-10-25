@@ -1,18 +1,13 @@
-(function (root, factory) {
-  const api = factory();
-  if (typeof module === "object" && module.exports) module.exports = api;
-  root.Solver2048 = api;
-})(typeof globalThis !== "undefined" ? globalThis : this, function () {
-  "use strict";
+import { directions, type Board, type Direction, type MoveResult, type SearchOptions, type SolverResult } from "./types";
 
-  const DIRECTIONS = ["left", "down", "right", "up"];
+  const DIRECTIONS = directions;
   const STORAGE_CIPHER_KEY = "dGhlIGJyb3duIGZveCBqdW1wcyBvdmVyIHRoZSBsYXp5IGRvZw==";
 
-  function cloneBoard(board) {
+  function cloneBoard(board: Board): Board {
     return board.map((row) => row.slice());
   }
 
-  function collapseLine(line) {
+  function collapseLine(line: number[]): { line: number[]; score: number } {
     const values = line.filter(Boolean);
     const result = [];
     let score = 0;
@@ -30,7 +25,7 @@
     return { line: result, score };
   }
 
-  function applyMove(board, direction) {
+  function applyMove(board: Board, direction: Direction): MoveResult {
     if (!DIRECTIONS.includes(direction)) throw new Error(`Unknown direction: ${direction}`);
     const next = Array.from({ length: 4 }, () => Array(4).fill(0));
     let score = 0;
@@ -57,7 +52,7 @@
     return { board: next, moved, score };
   }
 
-  function normalizeBoard(rows) {
+  function normalizeBoard(rows: any): Board | null {
     if (!Array.isArray(rows) || rows.length !== 4 || rows.some((row) => !Array.isArray(row) || row.length !== 4)) {
       return null;
     }
@@ -74,7 +69,7 @@
     return invalid ? null : board;
   }
 
-  function fromGameObject(game) {
+  function fromGameObject(game: any): Board | null {
     if (!game || typeof game !== "object") return null;
     if (Array.isArray(game.board)) return normalizeBoard(game.board);
     if (game.grid && Array.isArray(game.grid.cells)) {
@@ -89,13 +84,13 @@
     return null;
   }
 
-  function restoreBase64Padding(value) {
+  function restoreBase64Padding(value: string): string {
     const trailing = value.endsWith("==") ? 2 : value.endsWith("=") ? 1 : 0;
     const padding = ["", "=", "=="][(trailing + 1) % 3];
     return value.slice(0, value.length - trailing) + padding;
   }
 
-  function decodeCipher(value) {
+  function decodeCipher(value: string): any {
     const padded = restoreBase64Padding(value);
     const binary = typeof atob === "function"
       ? atob(padded)
@@ -107,7 +102,7 @@
     return JSON.parse(json);
   }
 
-  function decodeStoredGame(value) {
+  function decodeStoredGame(value: unknown): { board: Board; moveCount: number; raw: any } | null {
     if (typeof value !== "string" || !value) return null;
     let parsed;
     try {
@@ -123,7 +118,7 @@
     return board ? { board, moveCount: Number(parsed.moveCount) || 0, raw: parsed } : null;
   }
 
-  function storageKey(mode) {
+  function storageKey(mode: string): string {
     const input = `k-${mode}`;
     const bytes = new TextEncoder().encode(input);
     const checksum = Math.floor(10_000_000 * bytes.reduce((sum, byte) => sum + Math.sin(byte), 0)).toString(36);
@@ -132,12 +127,12 @@
     ).join("");
   }
 
-  function getStorageValue(storage, key) {
+  function getStorageValue(storage: any, key: string): string | null | undefined {
     if (!storage) return null;
     return typeof storage.getItem === "function" ? storage.getItem(key) : storage[key];
   }
 
-  function readBoardFromStorage(storage, pathname) {
+  function readBoardFromStorage(storage: any, pathname?: string) {
     const mode = pathname && pathname.includes("classic") ? "classic" : "standard";
     const preferredKey = storageKey(mode);
     const current = decodeStoredGame(getStorageValue(storage, preferredKey));
@@ -146,7 +141,7 @@
     return legacy ? legacy.board : null;
   }
 
-  function emptyCells(board) {
+  function emptyCells(board: Board): Array<{ x: number; y: number }> {
     const cells = [];
     for (let y = 0; y < 4; y += 1) {
       for (let x = 0; x < 4; x += 1) if (board[y][x] === 0) cells.push({ x, y });
@@ -154,7 +149,7 @@
     return cells;
   }
 
-  function evaluateBoard(board) {
+  function evaluateBoard(board: Board): number {
     const logs = board.map((row) => row.map((value) => value ? Math.log2(value) : 0));
     const maxTile = Math.max(...board.flat());
     const empties = emptyCells(board).length;
@@ -189,7 +184,7 @@
     return empties * 280 + smoothness * 18 + mergePotential * 32 + snake * 5 + cornerBonus;
   }
 
-  function chooseChanceCells(cells, limit) {
+  function chooseChanceCells(cells: Array<{ x: number; y: number }>, limit: number): Array<{ x: number; y: number }> {
     if (cells.length <= limit) return cells;
     const selected = [];
     for (let index = 0; index < limit; index += 1) {
@@ -198,7 +193,7 @@
     return selected;
   }
 
-  function findBestMove(board, options) {
+  function findBestMove(board: Board, options?: SearchOptions): SolverResult {
     if (Math.max(...board.flat()) >= 2048) {
       return { move: null, score: 10_000_000, depth: 0, alternatives: [], targetReached: true };
     }
@@ -284,13 +279,5 @@
     return best || { move: null, score: -1_000_000, depth: 0, alternatives: [] };
   }
 
-  return {
-    DIRECTIONS,
-    applyMove,
-    decodeStoredGame,
-    evaluateBoard,
-    findBestMove,
-    readBoardFromStorage,
-    storageKey,
-  };
-});
+
+export { applyMove, decodeStoredGame, evaluateBoard, findBestMove, readBoardFromStorage, storageKey };

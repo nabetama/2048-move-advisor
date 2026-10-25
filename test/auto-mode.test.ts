@@ -1,7 +1,7 @@
-const test = require("node:test");
-const assert = require("node:assert/strict");
+import { test } from "vitest";
+import assert from "node:assert/strict";
 
-const { createAutoController, keyboardEventForMove } = require("../auto-mode.js");
+import { createAutoController, keyboardEventForMove } from "../src/auto-mode";
 
 function fakeClock() {
   let nextId = 1;

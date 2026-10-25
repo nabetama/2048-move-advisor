@@ -10,11 +10,13 @@ A Chrome extension for [play2048.co](https://play2048.co/) that reads the curren
 
 ## Installation
 
-1. Open `chrome://extensions/` in Chrome.
-2. Enable **Developer mode** in the top-right corner.
-3. Click **Load unpacked**.
-4. Select this repository's directory.
-5. Open or reload [play2048.co](https://play2048.co/).
+1. Install dependencies with `npm install`.
+2. Build the extension with `npm run build`.
+3. Open `chrome://extensions/` in Chrome.
+4. Enable **Developer mode** in the top-right corner.
+5. Click **Load unpacked**.
+6. Select this repository's `dist/` directory.
+7. Open or reload [play2048.co](https://play2048.co/).
 
 The **2048 ADVISOR** panel will appear on the page. It recalculates the recommendation whenever the board changes. The extension supports both Standard mode on the home page and Classic mode at `/classic`.
 
@@ -44,6 +46,14 @@ The evaluation favors:
 - Available merges on future moves
 
 The search runs in a Web Worker to keep the game responsive. Board data is processed entirely in the browser and is never sent anywhere.
+
+## Build
+
+Build a loadable extension with:
+
+```sh
+npm run build
+```
 
 ## Development
 

@@ -1,13 +1,7 @@
-const test = require("node:test");
-const assert = require("node:assert/strict");
+import { test } from "vitest";
+import assert from "node:assert/strict";
 
-const {
-  applyMove,
-  decodeStoredGame,
-  findBestMove,
-  readBoardFromStorage,
-  storageKey,
-} = require("../solver.js");
+import { applyMove, decodeStoredGame, findBestMove, readBoardFromStorage, storageKey } from "../src/solver";
 
 test("left move merges each tile only once", () => {
   const result = applyMove([

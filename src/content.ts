@@ -1,7 +1,7 @@
-(function () {
-  "use strict";
+import { createAutoController, keyboardEventForMove } from "./auto-mode";
+import { findBestMove, readBoardFromStorage } from "./solver";
 
-  if (document.getElementById("solver-2048-advisor")) return;
+  if (!document.getElementById("solver-2048-advisor")) {
 
   const arrows = {
     up: "↑",
@@ -88,7 +88,7 @@
   let currentResult = null;
   let currentBoard = null;
 
-  const autoController = self.Auto2048.createAutoController({
+  const autoController = createAutoController({
     dispatchMove,
     getBoardHash,
     onStateChange(state) {
@@ -138,7 +138,7 @@
   }
 
   function dispatchMove(move) {
-    const eventInit = self.Auto2048.keyboardEventForMove(move);
+    const eventInit = keyboardEventForMove(move);
     window.dispatchEvent(new KeyboardEvent("keydown", {
       ...eventInit,
       bubbles: true,
@@ -153,7 +153,7 @@
 
   function createWorker() {
     try {
-      const instance = new Worker(chrome.runtime.getURL("worker.js"));
+      const instance = new Worker(new URL("./worker.ts", import.meta.url), { type: "module" });
       instance.addEventListener("message", (event) => {
         if (!event.data || event.data.id !== requestId || paused) return;
         const board = readBoard();
@@ -185,7 +185,7 @@
 
   function readBoard() {
     try {
-      return self.Solver2048.readBoardFromStorage(localStorage, location.pathname);
+      return readBoardFromStorage(localStorage, location.pathname);
     } catch (_) {
       return null;
     }
@@ -202,7 +202,7 @@
         return;
       }
       try {
-        const result = self.Solver2048.findBestMove(board, {
+        const result = findBestMove(board, {
           maxDepth: 4,
           nodeBudget: 40000,
           timeBudgetMs: 60,
@@ -301,4 +301,5 @@
   setInterval(positionPanel, 1500);
   positionPanel();
   scan();
-})();
+
+}
