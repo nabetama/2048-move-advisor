@@ -1,7 +1,7 @@
 import { test } from "vitest";
 import assert from "node:assert/strict";
 
-import { applyMove, decodeStoredGame, findBestMove, readBoardFromStorage, storageKey } from "../src/solver";
+import { applyMove, decodeStoredGame, evaluateBoard, findBestMove, readBoardFromStorage, storageKey } from "../src/solver";
 
 test("left move merges each tile only once", () => {
   const result = applyMove([
@@ -126,16 +126,27 @@ test("advisor takes an available move that creates 2048", () => {
   assert.ok(result.score > 1_000_000);
 });
 
-test("advisor reports completion when 2048 is already present", () => {
+test("advisor continues searching after 2048 is reached", () => {
   const result = findBestMove([
+    [2048, 4, 2, 0],
+    [512, 256, 128, 64],
+    [32, 16, 8, 4],
+    [2, 4, 2, 4],
+  ], { maxDepth: 3, nodeBudget: 20_000 });
+
+  assert.notEqual(result.move, null);
+  assert.ok(result.depth > 1);
+});
+
+test("evaluator retains normal scoring after 2048 is reached", () => {
+  const score = evaluateBoard([
     [2048, 4, 2, 0],
     [512, 256, 128, 64],
     [32, 16, 8, 4],
     [2, 4, 2, 4],
   ]);
 
-  assert.equal(result.move, null);
-  assert.equal(result.targetReached, true);
+  assert.ok(score < 1_000_000);
 });
 
 test("an exhausted search keeps the last fully completed depth", () => {

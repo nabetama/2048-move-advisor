@@ -19,7 +19,6 @@ export interface SolverResult {
   score: number;
   depth: number;
   alternatives: RankedMove[];
-  targetReached?: boolean;
 }
 
 export interface SearchOptions {
@@ -30,7 +29,7 @@ export interface SearchOptions {
 
 export interface AutoState {
   active: boolean;
-  reason: "manual" | "paused" | "stalled" | "boardUnavailable" | "targetReached" | "gameOver" | null;
+  reason: "manual" | "paused" | "stalled" | "boardUnavailable" | "gameOver" | null;
 }
 
 export interface WorkerRequest {

@@ -153,7 +153,6 @@ import { directions, type Board, type Direction, type MoveResult, type SearchOpt
     const logs = board.map((row) => row.map((value) => value ? Math.log2(value) : 0));
     const maxTile = Math.max(...board.flat());
     const empties = emptyCells(board).length;
-    if (maxTile >= 2048) return 10_000_000 + empties * 1000;
 
     let smoothness = 0;
     let mergePotential = 0;
@@ -194,9 +193,7 @@ import { directions, type Board, type Direction, type MoveResult, type SearchOpt
   }
 
   function findBestMove(board: Board, options?: SearchOptions): SolverResult {
-    if (Math.max(...board.flat()) >= 2048) {
-      return { move: null, score: 10_000_000, depth: 0, alternatives: [], targetReached: true };
-    }
+    const targetAlreadyReached = Math.max(...board.flat()) >= 2048;
     const settings = options || {};
     const maxDepth = settings.maxDepth || 4;
     const deadline = Date.now() + (settings.timeBudgetMs || 120);
@@ -206,7 +203,7 @@ import { directions, type Board, type Direction, type MoveResult, type SearchOpt
 
     for (const direction of DIRECTIONS) {
       const result = applyMove(board, direction);
-      if (result.moved && Math.max(...result.board.flat()) >= 2048) {
+      if (!targetAlreadyReached && result.moved && Math.max(...result.board.flat()) >= 2048) {
         return {
           move: direction,
           score: 10_000_000 + result.score,

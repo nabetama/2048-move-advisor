@@ -1,5 +1,6 @@
 import { createAutoController, keyboardEventForMove } from "./auto-mode";
 import { findBestMove, readBoardFromStorage } from "./solver";
+import { isKeepGoingControl } from "./win-dialog";
 import workerUrl from "./worker.ts?script&module";
 
   if (!document.getElementById("solver-2048-advisor")) {
@@ -111,23 +112,19 @@ import workerUrl from "./worker.ts?script&module";
   function showMove(result, board) {
     currentResult = result;
     currentBoard = board;
-    if (result && result.targetReached) {
-      autoController.stop("targetReached");
-      setStatus("2048 reached!");
-      detailsElement.textContent = "Goal achieved";
-      return;
-    }
     if (!result || !result.move) {
       autoController.stop("gameOver");
       setStatus("No moves left");
       detailsElement.textContent = "Game over";
       return;
     }
+
     const maxTile = Math.max(...board.flat());
     const emptyCount = board.flat().filter((value) => value === 0).length;
     arrowElement.textContent = arrows[result.move];
     statusElement.classList.add("hidden");
     moveElement.classList.remove("hidden");
+    if (maxTile >= 2048 && autoController.isActive()) continueWonGameIfNeeded();
     const autoLabel = autoController.isActive() ? "Auto mode • " : "";
     detailsElement.textContent = `${autoLabel}Max ${maxTile} • Empty ${emptyCount} • Depth ${result.depth}`;
     autoController.suggest(result.move, board.flat().join(","));
@@ -136,6 +133,23 @@ import workerUrl from "./worker.ts?script&module";
   function getBoardHash() {
     const board = readBoard();
     return board ? board.flat().join(",") : null;
+  }
+
+  function continueWonGameIfNeeded() {
+    const clickKeepGoing = () => {
+      if (!autoController.isActive()) return;
+      const keepGoing = [...document.querySelectorAll<HTMLElement>("button, a")]
+        .find((element) => isKeepGoingControl({
+          tagName: element.tagName,
+          text: element.textContent ?? "",
+          classes: [...element.classList],
+        }));
+      keepGoing?.click();
+    };
+
+    clickKeepGoing();
+    setTimeout(clickKeepGoing, 150);
+    setTimeout(clickKeepGoing, 400);
   }
 
   function dispatchMove(move) {

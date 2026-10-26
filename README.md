@@ -24,9 +24,8 @@ The **2048 ADVISOR** panel will appear on the page. It recalculates the recommen
 
 Click **Auto Start** to let the extension play the recommended moves automatically. Click **Auto Stop** to return to manual play.
 
-Auto mode stops automatically when:
+Auto mode continues after reaching the 2048 tile. It stops automatically when:
 
-- The 2048 tile is reached
 - The game is over
 - A move does not change the board
 - The board can no longer be read
