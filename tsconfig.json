@@ -8,7 +8,7 @@
     "noEmit": true,
     "resolveJsonModule": true,
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["chrome", "vitest/globals", "node"],
+    "types": ["chrome", "vite/client", "vitest/globals", "node"],
     "noImplicitAny": false,
     "strictNullChecks": false,
     "skipLibCheck": true

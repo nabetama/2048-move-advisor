@@ -1,5 +1,6 @@
 import { createAutoController, keyboardEventForMove } from "./auto-mode";
 import { findBestMove, readBoardFromStorage } from "./solver";
+import workerUrl from "./worker.ts?script&module";
 
   if (!document.getElementById("solver-2048-advisor")) {
 
@@ -153,7 +154,7 @@ import { findBestMove, readBoardFromStorage } from "./solver";
 
   function createWorker() {
     try {
-      const instance = new Worker(new URL("./worker.ts", import.meta.url), { type: "module" });
+      const instance = new Worker(chrome.runtime.getURL(workerUrl), { type: "module" });
       instance.addEventListener("message", (event) => {
         if (!event.data || event.data.id !== requestId || paused) return;
         const board = readBoard();
